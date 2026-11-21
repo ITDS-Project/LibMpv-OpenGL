@@ -4,10 +4,10 @@ namespace HanumanInstitute.LibMpv.Core;
 
 public class LinuxFunctionResolver : FunctionResolverBase
 {
-    private const string Libdl = "libdl.so.2";
+    private const string Libdl = "libdl.so";
     private const int RTLD_NOW = 0x002;
 
-    protected override string GetNativeLibraryName(string libraryName, int version) => $"{libraryName}.so.{version}";
+    protected override string GetNativeLibraryName(string libraryName, int version) => $"{libraryName}.so";
     protected override string[] GetSearchPaths() => new[] { "/usr/lib/x86_64-linux-gnu", "/lib64", "/usr/lib64", "/lib", "/usr/lib", MpvApi.RootPath };
     protected override IntPtr LoadNativeLibrary(string libraryName) => dlopen(libraryName, RTLD_NOW);
     protected override IntPtr FindFunctionPointer(IntPtr nativeLibraryHandle, string functionName) => dlsym(nativeLibraryHandle, functionName);
