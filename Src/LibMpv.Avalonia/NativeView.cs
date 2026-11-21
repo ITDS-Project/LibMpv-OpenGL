@@ -89,10 +89,9 @@ public class NativeView : NativeControlHost, IVideoView
 
         InitializeNativeOverlay();
 
-        _isEffectivelyVisibleSub = this.GetVisualAncestors().OfType<Control>()
-            .Select(v => v.GetObservable(IsVisibleProperty))
-            .CombineLatest(v => !v.Any(o => !o))
-            .DistinctUntilChanged()
+        _isEffectivelyVisibleSub = Observable.DistinctUntilChanged(this.GetVisualAncestors().OfType<Control>()
+                .Select(v => v.GetObservable(IsVisibleProperty))
+                .CombineLatest(v => !v.Any(o => !o)))
             .Subscribe(v => IsVisible = v);
     }
 
@@ -136,13 +135,12 @@ public class NativeView : NativeControlHost, IVideoView
             var disposables = new CompositeDisposable()
             {
                 _floatingContent.Bind(Window.ContentProperty, this.GetObservable(ContentProperty)),
-                this.GetObservable(ContentProperty).Skip(1).Subscribe(_ => UpdateOverlayPosition()),
-                this.GetObservable(BoundsProperty).Skip(1).Subscribe(_ => UpdateOverlayPosition()),
+                Observable.Skip(this.GetObservable(ContentProperty), 1).Subscribe(_ => UpdateOverlayPosition()),
+                Observable.Skip(this.GetObservable(BoundsProperty), 1).Subscribe(_ => UpdateOverlayPosition()),
             };
             if (parentWindow != null)
             {
-                disposables.Add(Observable.FromEventPattern(parentWindow, nameof(Window.PositionChanged))
-                    .Subscribe(_ => UpdateOverlayPosition()));
+                disposables.Add(ObservableExtensions.Subscribe(Observable.FromEventPattern(parentWindow, nameof(Window.PositionChanged)), _ => UpdateOverlayPosition()));
             }
             _disposables = disposables;
         }
