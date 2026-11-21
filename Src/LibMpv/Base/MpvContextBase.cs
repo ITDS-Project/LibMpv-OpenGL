@@ -26,9 +26,6 @@ public unsafe partial class MpvContextBase : IDisposable
 
     public MpvContextBase(MpvEventLoop mpvEventLoop)
     {
-#if ANDROID
-        InitAndroid.InitJvm();
-#endif
         _ = Ctx; // Force handle creation before OnPreInitialize
         OnPreInitialize();
         Initialize();
